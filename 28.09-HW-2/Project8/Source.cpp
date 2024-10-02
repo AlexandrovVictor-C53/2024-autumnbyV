@@ -1,30 +1,36 @@
 #include <stdio.h>
 #include <math.h>
-int main(argc, char* argv[]);
+
+int main(int argc, char* argv[])
 {
-    int number1 = 0;
-    int number2 = 0;
+    int n = 0;
+    int m = 0;
+    scanf_s("%d", &n);
+    scanf_s("%d", &m);
 
-    scanf_s("%d", &number1);
-    scanf_s("%d", &number2);
+    int ans = 0;
 
-    if (number1 < number2) {
-
-        int temp = number1;
-        number1 = number2;
-        number2 = temp;
+    if (n > m) {
+        int temp = n;
+        n = m;
+        m = temp;
     }
 
-    if (number1 == 1 || number2 == 1) {
-        printf("%d\n", number1 * number2 * 4);
+    if (n == 1) {
+        ans = 4 * m;
+
+    }
+    else if (n % 2 == 0 && m % 2 == 0) {
+        ans = 2 * ((n + 1) * m + n);
+
     }
     else {
-        int result = (number2 + 2) * number1 + number2 * (number1 + 2);
-        if (number1 % 2 == 1 && number2 % 2 == 1) {
-            result -= 2;
-        }
-        printf("%d\n", result);
-    }
+        ans = (m + 1) * n + (n + 1) * m;
+        ans += (2 * (m - 1) + 2 * (n - 1)) / 2;
 
+        if (n * m % 2 == 0)
+            ans += 2;
+    }
+    printf("%d", ans);
     return 0;
 }
