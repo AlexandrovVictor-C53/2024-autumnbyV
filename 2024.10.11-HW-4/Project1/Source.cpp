@@ -12,9 +12,9 @@ int main(int argc, char* argv[])
 	{
 		scanf_s("%d", &a[i]);
 	}
-	{
-		scanf_s("%d", &x);
-	}
+
+	scanf_s("%d", &x);
+
 	for (i = 0; i < n; ++i)
 	{
 		if (a[i] == x)

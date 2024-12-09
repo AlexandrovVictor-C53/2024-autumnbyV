@@ -14,12 +14,9 @@ int main(int argc, char* argv[])
 	{
 		scanf_s("%d", &a[i]);
 	}
-	{
-		scanf_s("%d", &l);
-	}
-	{
-		scanf_s("%d", &r);
-	}
+	scanf_s("%d", &l);
+	scanf_s("%d", &r);
+
 	k = l;
 	for (i = l + 1; i <= r; ++i)
 	{
