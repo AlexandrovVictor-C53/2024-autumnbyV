@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
 
     for (i = 1; i < n; ++i)
     {
-        scanf("%d", &a[i]);
+        scanf_s("%d", &a[i]);
         if (a[i] > x)
         {
             x = a[i];
