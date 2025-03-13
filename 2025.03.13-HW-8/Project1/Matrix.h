@@ -1,5 +1,5 @@
 ﻿#pragma once
-//TODO: ñîçäàòü #pragma twice ñ ïîìîùüþ ifndef ifdef endif define
+
 #include<ostream>
 class Matrix
 {
