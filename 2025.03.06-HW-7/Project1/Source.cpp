@@ -10,7 +10,6 @@ private:
 
 	void init(int len = 10)
 	{
-		//(*this).len = len;
 		this->len = len;
 		this->data = (int*)malloc(sizeof(int) * len);
 	}
@@ -46,6 +45,34 @@ private:
 			(*len)++;
 		}
 	}
+	void contract(int reduced = 1)
+	{
+		if (reduced > len)
+		{
+			return;
+		}
+		int newlen = this->len - reduced;
+		int* newdata = (int*)malloc(sizeof(int) * newlen);
+		if (newdata != nullptr)
+		{
+			for (int i = 0; i < newlen; ++i)
+			{
+				newdata[i] = this->data[i];
+			}
+		}
+		if (this->data != nullptr)
+		{
+			free(this->data);
+			this->data = newdata;
+			this->len = newlen;
+		}
+	}
+	void swap(int i1, int i2)
+	{
+		int c = get(i1);
+		set(i1, get(i2));
+		set(i2, c);
+	}
 
 public:
 	listayList(int len = 10)
@@ -58,8 +85,7 @@ public:
 	}
 	listayList(listayList& list)
 	{
-		//this->len = list.len;
-		//this->data = list.data;
+	
 		this->init(list.len);
 		for (int i = 0; i < list.len; ++i)
 		{
@@ -68,13 +94,9 @@ public:
 	}
 	~listayList()
 	{
-		//for (int i = 0; i < this->len; ++i)
-		//{
-		//	this->data[i] = 0;
-		//}
+
 		free(this->data);
-		//this->data = nullptr;
-		//this->len = 0;
+	
 	}
 	void randomize(int min = 10, int max = 99)
 	{
@@ -124,18 +146,34 @@ public:
 
 	
 	
-	void pushBack(int element); 
+	void pushBack(int element)
 	{
 		expandIntlistay_back(a, len);
 		(*a)[*len - 1] = element;
 	}
-	void pushFront(int element);
-
-	void insert(int index, int element);
-	int popBack();
-	int popFront();
-	int extract(int index);
-
+	void pushFront(int element)
+	{
+		pushBack(element);
+		shift(1);
+	}
+	void insert(int index, int element)
+	{
+		expand();
+		for (int i = len - 1; i > index; --i)
+		{
+			set(i, get(i - 1));
+		}
+		set(index, element);
+	}	int popBack()
+	{
+		int res = get(this->len - 1);
+		contract();
+		return res;
+	}	int popFront()
+	{
+		shift(-1);
+		return popBack();
+	}
 	int extract(int index)
 	{
 		if (index >= 0 && index < this->len)
@@ -156,20 +194,18 @@ public:
 	}
 }
 
-void reverse(int start, int end);
+void reverse(int start, int end)
+{
+	if (!indexValid(start) || !indexValid(end))
 	{
-		if (start < 0  end >= this->len  start >= end) 
-		{
-			return; 
-		}
-
-		while (start < end) {
-			std::swap(this->data[start], this->data[end]);
-			start++;
-			end--;
-		}
+		return;
 	}
-	int sum();
+	int rnglen = end - start + 1;
+	for (int i = 0; i < rnglen / 2; ++i)
+	{
+		swap(start + i, end - i);
+	}
+}
 	
 	int secondMax();
 	{
@@ -190,25 +226,38 @@ void reverse(int start, int end);
 		return SecMax;
 	}
 	
-	int lastMinIndex();
-	
-	int shift(int k);
-	
-	
-	int countOdd();
+	int lastMinIndex()
 	{
-		for (int i = index; i < this->len; ++i)
+		int mnInd = 0;
+		for (int i = 0; i < len; ++i)
 		{
-			if (this->data[i] % 2 == 1)
+			if (get(i) <= get(mnInd))
 			{
-				int CountOfOdd += 1;
-			}
-			else
-			{
-				continue;
+				mnInd = i;
 			}
 		}
-		return CountOfOdd;
+		return mnInd;
+	}
+	
+	int shift(int k)				
+	{									
+		reverse(0, len - k - 1);		
+		reverse(len - k, len - 1);		
+		reverse(0, len - 1);			
+	}
+	
+	
+	int countOdd()
+	{
+		int count = 0;
+		for (int i = 0; i < len; ++i)
+		{
+			if (get(i) % 2 == 1)
+			{
+				++count;
+			}
+		}
+		return count;
 	}
 
 	
