@@ -8,15 +8,16 @@
 class Student {
 public:
     std::string name;
-    int health;
-    int strength;
+    
     int resilence;
-    int intelligence;
+    int intellect;
     int luck;
     int defense;
+    int health;
+    int strength;
 
     Student(std::string name, int str, int res, int intel, int luck, int def)
-        : name(name), health(100), strength(str), resilence(res), intelligence(intel), luck(luck), defense(def) {}
+        : name(name), health(100), strength(str), resilence(res), intellect(intel), luck(luck), defense(def) {}
     
     bool isAlive() 
     {
