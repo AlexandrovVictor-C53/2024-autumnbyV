@@ -1,4 +1,4 @@
-#include <iostream>
+﻿#include <iostream>
 #include <cmath>
 #include <vector>
 #include <fstream>
@@ -10,8 +10,8 @@ const double PI = acos(-1.0);
 const double g = 9.81;
 
 void derivatives(double tau, double Ksi, double Eta, double F, double f,
-                 double& dKsi_dTau, double& dEta_dTau, double& dF_dTau, double& df_dTau,
-                 double alpha, double beta, double rho) {
+    double& dKsi_dTau, double& dEta_dTau, double& dF_dTau, double& df_dTau,
+    double alpha, double beta, double rho) {
     dKsi_dTau = Eta;
     dEta_dTau = -alpha * F;
     dF_dTau = Eta * exp(beta * Ksi) - F + rho * f;
@@ -19,7 +19,7 @@ void derivatives(double tau, double Ksi, double Eta, double F, double f,
 }
 
 void rungeKuttaStep(double tau, double& Ksi, double& Eta, double& F, double& f,
-                    double h, double alpha, double beta, double rho) {
+    double h, double alpha, double beta, double rho) {
     double k1_Ksi, k1_Eta, k1_F, k1_f;
     double k2_Ksi, k2_Eta, k2_F, k2_f;
     double k3_Ksi, k3_Eta, k3_F, k3_f;
@@ -29,36 +29,36 @@ void rungeKuttaStep(double tau, double& Ksi, double& Eta, double& F, double& f,
 
     double temp_Ksi = Ksi + 0.5 * h * k1_Ksi;
     double temp_Eta = Eta + 0.5 * h * k1_Eta;
-    double temp_F   = F   + 0.5 * h * k1_F;
-    double temp_f   = f   + 0.5 * h * k1_f;
+    double temp_F = F + 0.5 * h * k1_F;
+    double temp_f = f + 0.5 * h * k1_f;
     derivatives(tau + 0.5 * h, temp_Ksi, temp_Eta, temp_F, temp_f,
-                k2_Ksi, k2_Eta, k2_F, k2_f, alpha, beta, rho);
+        k2_Ksi, k2_Eta, k2_F, k2_f, alpha, beta, rho);
 
     temp_Ksi = Ksi + 0.5 * h * k2_Ksi;
     temp_Eta = Eta + 0.5 * h * k2_Eta;
-    temp_F   = F   + 0.5 * h * k2_F;
-    temp_f   = f   + 0.5 * h * k2_f;
+    temp_F = F + 0.5 * h * k2_F;
+    temp_f = f + 0.5 * h * k2_f;
     derivatives(tau + 0.5 * h, temp_Ksi, temp_Eta, temp_F, temp_f,
-                k3_Ksi, k3_Eta, k3_F, k3_f, alpha, beta, rho);
+        k3_Ksi, k3_Eta, k3_F, k3_f, alpha, beta, rho);
 
     temp_Ksi = Ksi + h * k3_Ksi;
     temp_Eta = Eta + h * k3_Eta;
-    temp_F   = F   + h * k3_F;
-    temp_f   = f   + h * k3_f;
+    temp_F = F + h * k3_F;
+    temp_f = f + h * k3_f;
     derivatives(tau + h, temp_Ksi, temp_Eta, temp_F, temp_f,
-                k4_Ksi, k4_Eta, k4_F, k4_f, alpha, beta, rho);
+        k4_Ksi, k4_Eta, k4_F, k4_f, alpha, beta, rho);
 
     Ksi += (h / 6.0) * (k1_Ksi + 2.0 * k2_Ksi + 2.0 * k3_Ksi + k4_Ksi);
     Eta += (h / 6.0) * (k1_Eta + 2.0 * k2_Eta + 2.0 * k3_Eta + k4_Eta);
-    F   += (h / 6.0) * (k1_F   + 2.0 * k2_F   + 2.0 * k3_F   + k4_F);
-    f   += (h / 6.0) * (k1_f   + 2.0 * k2_f   + 2.0 * k3_f   + k4_f);
+    F += (h / 6.0) * (k1_F + 2.0 * k2_F + 2.0 * k3_F + k4_F);
+    f += (h / 6.0) * (k1_f + 2.0 * k2_f + 2.0 * k3_f + k4_f);
 }
 
 int main() {
     double m = 0.1;
     double d = 0.005;
     double h0 = 0.0023;
-    double A = PI * (d/2.0)*(d/2.0);
+    double A = PI * (d / 2.0) * (d / 2.0);
     double E0 = 5.6e6;
     double rho = 0.3;
     double E_inf = rho * E0;
@@ -81,7 +81,7 @@ int main() {
 
     double h_step = 0.001;
     double tau_end = 50.0;
-    int plot_index = 0; // #####################################
+    int plot_index = 4; // 5 см
 
     cout << fixed << setprecision(4);
     cout << "\nТаблица результатов:\n";
@@ -125,11 +125,11 @@ int main() {
         e_values[idx] = e_star;
         tau_c_values[idx] = tau_c;
 
-        cout << H_values[idx]*100 << "\t" << v0 << "\t" << beta
-             << "\t" << tau_c << "\t" << e_star << "\n";
+        cout << H_values[idx] * 100 << "\t" << v0 << "\t" << beta
+            << "\t" << tau_c << "\t" << e_star << "\n";
 
         if (idx == plot_index) {
-            string fname = "trajectory_H" + to_string((int)(H_values[idx]*100)) + "cm.txt";
+            string fname = "trajectory_H" + to_string((int)(H_values[idx] * 100)) + "cm.txt";
             ofstream traj(fname);
             traj << "t(s)\tx(m)\tv(m/s)\n";
             for (size_t i = 0; i < t_plot.size(); ++i)
@@ -141,8 +141,8 @@ int main() {
     ofstream tab("table_results.txt");
     tab << "H(cm)\tv0(m/s)\tbeta\ttau_c\te*\n";
     for (int i = 0; i < numH; ++i)
-        tab << H_values[i]*100 << "\t" << v0_values[i] << "\t"
-            << beta_values[i] << "\t" << tau_c_values[i] << "\t" << e_values[i] << "\n";
+        tab << H_values[i] * 100 << "\t" << v0_values[i] << "\t"
+        << beta_values[i] << "\t" << tau_c_values[i] << "\t" << e_values[i] << "\n";
     tab.close();
 
     cout << "\nТаблица сохранена в table_results.txt\n";
