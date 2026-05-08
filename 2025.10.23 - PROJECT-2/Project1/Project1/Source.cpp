@@ -55,39 +55,40 @@ void rungeKuttaStep(double tau, double& Ksi, double& Eta, double& F, double& f,
 }
 
 int main() {
-    double m = 0.1;
-    double d = 0.005;
-    double h0 = 0.0023;
+    // Физические параметры
+    double m = 0.1;                // масса (кг)
+    double d = 0.005;              // диаметр (м)
+    double h0 = 0.0023;            // толщина (м)
     double A = PI * (d/2.0)*(d/2.0);
-    double E0 = 5.6e6;
+    double E0 = 5.6e6;             // мгновенный модуль (Па)
     double rho = 0.3;
-    double E_inf = rho * E0;
-    double tau_R = 3.0e-4;
+    double tau_R = 3.0e-4;         // время релаксации (с)
     double B = 6.2;
+
     double alpha = (A * E0 * tau_R * tau_R) / (m * h0);
 
     const int numH = 10;
-    double H_values[numH];
-    double v0_values[numH];
-    double beta_values[numH];
-    double e_values[numH];
-    double tau_c_values[numH];
+    double H_values[numH], v0_values[numH], beta_values[numH];
+    double e_values[numH], tau_c_values[numH];
+    double Ek0_values[numH], dE_rel_values[numH];   // новые столбцы
 
+    // Вычисляем высоты и начальные скорости
     for (int i = 0; i < numH; ++i) {
-        H_values[i] = 0.01 * (i + 1);
+        H_values[i] = 0.01 * (i + 1);                // 0.01, 0.02, ..., 0.10 м
         v0_values[i] = sqrt(2.0 * g * H_values[i]);
         beta_values[i] = (B * v0_values[i] * tau_R) / h0;
+        Ek0_values[i] = 0.5 * m * v0_values[i] * v0_values[i];
     }
 
-    double h_step = 0.001;
-    double tau_end = 50.0;
-    int plot_index = 0; // #####################################
+    double h_step = 0.001;          // шаг безразмерного времени
+    double tau_end = 50.0;          // большой запас
 
     cout << fixed << setprecision(4);
-    cout << "\nТаблица результатов:\n";
-    cout << "H(см)\tv0(м/с)\tbeta\ttau_c\te*\n";
-    cout << "------------------------------------------\n";
+    cout << "\n--- Таблица результатов ---\n";
+    cout << "H(см)\tv0(м/с)\tbeta\tE_k0(Дж)\ttau_c\te*\tdE_k/E_k0\n";
+    cout << "-----------------------------------------------------------\n";
 
+    // Цикл по высотам
     for (int idx = 0; idx < numH; ++idx) {
         double v0 = v0_values[idx];
         double beta = beta_values[idx];
@@ -95,25 +96,31 @@ int main() {
         bool contact_ended = false;
         double tau_c = 0.0, e_star = 0.0;
 
-        vector<double> t_plot, x_plot, v_plot;
-        if (idx == plot_index) {
-            t_plot.reserve(50000);
-            x_plot.reserve(50000);
-            v_plot.reserve(50000);
-        }
+        // Векторы для траектории (сохраняем для каждой высоты)
+        vector<double> t_plot, x_plot, v_plot, F_plot;
+        t_plot.reserve(50000); x_plot.reserve(50000);
+        v_plot.reserve(50000); F_plot.reserve(50000);
 
         while (tau <= tau_end && !contact_ended) {
-            if (idx == plot_index) {
-                t_plot.push_back(tau * tau_R);
-                x_plot.push_back(Ksi * v0 * tau_R);
-                v_plot.push_back(Eta * v0);
-            }
+            // Перевод в размерные величины
+            double t_dim = tau * tau_R;
+            double x_dim = Ksi * v0 * tau_R;
+            double v_dim = Eta * v0;
+            double F_dim = (A * E0 / h0) * F;   // размерная сила (Н)
+
+            t_plot.push_back(t_dim);
+            x_plot.push_back(x_dim);
+            v_plot.push_back(v_dim);
+            F_plot.push_back(F_dim);
+
+            // Конец контакта
             if (F <= 0.0 && tau > 0.001) {
                 contact_ended = true;
                 tau_c = tau;
                 e_star = -Eta;
                 break;
             }
+
             rungeKuttaStep(tau, Ksi, Eta, F, f, h_step, alpha, beta, rho);
             tau += h_step;
         }
@@ -122,34 +129,66 @@ int main() {
             tau_c = tau;
             e_star = -Eta;
         }
+
         e_values[idx] = e_star;
         tau_c_values[idx] = tau_c;
+        double dE_rel = 1.0 - e_star * e_star;   // относительная потеря энергии
+        dE_rel_values[idx] = dE_rel;
 
-        cout << H_values[idx]*100 << "\t" << v0 << "\t" << beta
-             << "\t" << tau_c << "\t" << e_star << "\n";
+        // Вывод в консоль
+        cout << H_values[idx]*100 << "\t" << v0 << "\t" << beta << "\t"
+             << Ek0_values[idx] << "\t" << tau_c << "\t" << e_star << "\t"
+             << dE_rel << "\n";
 
-        if (idx == plot_index) {
-            string fname = "trajectory_H" + to_string((int)(H_values[idx]*100)) + "cm.txt";
-            ofstream traj(fname);
-            traj << "t(s)\tx(m)\tv(m/s)\n";
-            for (size_t i = 0; i < t_plot.size(); ++i)
-                traj << t_plot[i] << "\t" << x_plot[i] << "\t" << v_plot[i] << "\n";
-            traj.close();
+        // Сохраняем траекторию в файл
+        string fname = "trajectory_H" + to_string((int)(H_values[idx]*100)) + "cm.txt";
+        ofstream traj(fname);
+        traj << "t(s)\tx(m)\tv(m/s)\tF(N)\n";
+        for (size_t i = 0; i < t_plot.size(); ++i) {
+            traj << t_plot[i] << "\t" << x_plot[i] << "\t"
+                 << v_plot[i] << "\t" << F_plot[i] << "\n";
         }
+        traj.close();
     }
 
+    // Сохраняем полную таблицу (с новыми столбцами)
     ofstream tab("table_results.txt");
-    tab << "H(cm)\tv0(m/s)\tbeta\ttau_c\te*\n";
-    for (int i = 0; i < numH; ++i)
+    tab << "H(cm)\tv0(m/s)\tbeta\tE_k0(J)\ttau_c\te*\tdE_k/E_k0\n";
+    for (int i = 0; i < numH; ++i) {
         tab << H_values[i]*100 << "\t" << v0_values[i] << "\t"
-            << beta_values[i] << "\t" << tau_c_values[i] << "\t" << e_values[i] << "\n";
+            << beta_values[i] << "\t" << Ek0_values[i] << "\t"
+            << tau_c_values[i] << "\t" << e_values[i] << "\t"
+            << dE_rel_values[i] << "\n";
+    }
     tab.close();
 
-    cout << "\nТаблица сохранена в table_results.txt\n";
-    cout << "Траектория для H=5 см сохранена в trajectory_H5cm.txt\n";
-    cout << "Команды для графиков:\n";
-    cout << "gnuplot -p -e \"plot 'trajectory_H5cm.txt' using 1:2 with lines title 'x(t)'\"\n";
-    cout << "gnuplot -p -e \"plot 'trajectory_H5cm.txt' using 1:3 with lines title 'v(t)'\"\n";
+    // ---- Генерация скрипта для gnuplot (построение графиков) ----
+    ofstream script("plot_all.gnu");
+    script << "# Gnuplot script for impact graphs\n";
+    script << "set terminal pngcairo size 800,600 enhanced font 'Arial,10'\n";
+    for (int i = 0; i < numH; ++i) {
+        int Hcm = (int)(H_values[i]*100);
+        string datfile = "trajectory_H" + to_string(Hcm) + "cm.txt";
+        string outfile = "plot_H" + to_string(Hcm) + "cm.png";
+        script << "\n# height = " << Hcm << " cm\n";
+        script << "set output '" << outfile << "'\n";
+        script << "set multiplot layout 3,1 title 'Impact at H=" << Hcm << " cm'\n";
+        script << "set xlabel 't, s'\n";
+        script << "set ylabel 'x, m'\n";
+        script << "plot '" << datfile << "' using 1:2 with lines title 'Displacement'\n";
+        script << "set ylabel 'v, m/s'\n";
+        script << "plot '" << datfile << "' using 1:3 with lines title 'Velocity'\n";
+        script << "set ylabel 'F, N'\n";
+        script << "plot '" << datfile << "' using 1:4 with lines title 'Force'\n";
+        script << "unset multiplot\n";
+    }
+    script.close();
+
+    cout << "\nТраектории для всех высот сохранены.\n";
+    cout << "Таблица с энергией -- в файле table_results.txt\n";
+    cout << "Для построения графиков выполните:\n";
+    cout << "   gnuplot plot_all.gnu\n";
+    cout << "Будут созданы PNG-файлы plot_H1cm.png ... plot_H10cm.png\n";
 
     return 0;
 }
