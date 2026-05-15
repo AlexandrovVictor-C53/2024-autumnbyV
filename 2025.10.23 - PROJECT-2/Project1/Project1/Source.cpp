@@ -61,7 +61,7 @@ int main() {
     double h0 = 0.0023;            // толщина (м)
     double A = PI * (d/2.0)*(d/2.0);
     double E0 = 5.6e6;             // мгновенный модуль (Па)
-    double rho = 0.3;
+    double rho = 0.4;
     double tau_R = 3.0e-4;         // время релаксации (с)
     double B = 6.2;
 
@@ -74,7 +74,7 @@ int main() {
 
     // Вычисляем высоты и начальные скорости
     for (int i = 0; i < numH; ++i) {
-        H_values[i] = 0.01 * (i + 1);                // 0.01, 0.02, ..., 0.10 м
+        H_values[i] = 0.001 * (i + 1);                // 0.01, 0.02, ..., 0.10 м
         v0_values[i] = sqrt(2.0 * g * H_values[i]);
         beta_values[i] = (B * v0_values[i] * tau_R) / h0;
         Ek0_values[i] = 0.5 * m * v0_values[i] * v0_values[i];
