@@ -1,5 +1,26 @@
 set terminal pngcairo size 800,600 enhanced font 'Arial,10'
 
+set output 'stress_strain_H0_05cm_png'
+set xlabel 'Strain, x/h0'
+set ylabel 'Stress, Pa'
+set title 'Stress-Strain at H=0.05 cm'
+set grid
+plot 'trajectory_v2_H0_05cm_txt' using 6:5 with lines title 'loop'
+
+set output 'stress_strain_H0_10cm_png'
+set xlabel 'Strain, x/h0'
+set ylabel 'Stress, Pa'
+set title 'Stress-Strain at H=0.1 cm'
+set grid
+plot 'trajectory_v2_H0_10cm_txt' using 6:5 with lines title 'loop'
+
+set output 'stress_strain_H0_15cm_png'
+set xlabel 'Strain, x/h0'
+set ylabel 'Stress, Pa'
+set title 'Stress-Strain at H=0.15 cm'
+set grid
+plot 'trajectory_v2_H0_15cm_txt' using 6:5 with lines title 'loop'
+
 set output 'stress_strain_H0_25cm_png'
 set xlabel 'Strain, x/h0'
 set ylabel 'Stress, Pa'
